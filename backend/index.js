@@ -5,8 +5,11 @@ const helmet = require('helmet');
 const sequelize = require('./config/database');
 require('dotenv').config();
 require('./models/Product');
+require('./models/Cart');
+const cartRoutes = require('./routes/cartRoutes'); 
 
-const productRoutes = require('./routes/productRoutes'); // 👈 ADD THIS
+
+const productRoutes = require('./routes/productRoutes'); 
 
 const app = express();
 
@@ -15,7 +18,9 @@ app.use(cors());
 app.use(helmet());
 
 // Use product routes
-app.use('/products', productRoutes); // 👈 ADD THIS
+app.use('/products', productRoutes); 
+app.use('/cart', cartRoutes); 
+
 
 // Test route
 app.get('/', (req, res) => {
