@@ -3,54 +3,36 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const { sendOrderConfirmationEmail } = require('../services/emailService');
 
 // Place an order (checkout)
 exports.placeOrder = async (req, res) => {
-  try {
-    // Fetch all cart items
-    const cartItems = await Cart.findAll();
-
-    if (cartItems.length === 0) {
-      return res.status(400).json({ error: 'Cart is empty' });
-    }
-
-    // Prepare products array and calculate total price
-    let products = [];
-    let totalPrice = 0;
-
-    for (const item of cartItems) {
-      const product = await Product.findByPk(item.product_id);
-
-      if (!product) {
-        continue; // Skip if product no longer exists
+    try {
+      const { products, total_price } = req.body;
+  
+      // Validate request
+      if (!products || products.length === 0) {
+        return res.status(400).json({ error: 'No products provided.' });
       }
-
-      products.push({
-        product_id: product.id,
-        title: product.title,
-        quantity: item.quantity,
-        price: product.price
+      if (!total_price || total_price <= 0) {
+        return res.status(400).json({ error: 'Invalid total price.' });
+      }
+  
+      // Create the order with the user ID from JWT token
+      const order = await Order.create({
+        user_id: req.user.userId,   // ✅ Link the order to the user placing it
+        products,
+        total_price,
+        status: 'Pending',          // Default initially until payment confirmed
       });
-
-      totalPrice += product.price * item.quantity;
+  
+      res.status(201).json(order);
+    } catch (error) {
+      console.error('Error placing order:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
-
-    // Create the order
-    const order = await Order.create({
-      products,
-      total_price: totalPrice,
-      status: 'Pending'
-    });
-
-    // Clear the cart after order is placed
-    await Cart.destroy({ where: {} });
-
-    res.status(201).json(order);
-  } catch (error) {
-    console.error('Error placing order:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+  };
 
 // Get all orders
 exports.getOrders = async (req, res) => {
@@ -65,6 +47,7 @@ exports.getOrders = async (req, res) => {
 
 
 // Update Order Status to Paid
+// Update Order Status to Paid
 exports.updateOrderStatus = async (req, res) => {
     try {
       const { id } = req.params;
@@ -76,9 +59,19 @@ exports.updateOrderStatus = async (req, res) => {
         return res.status(404).json({ error: 'Order not found' });
       }
   
-      // Update order status
+      // Update order status to "Paid"
       order.status = 'Paid';
       await order.save();
+  
+      // Fetch the user based on user_id from the Order
+      const user = await User.findByPk(order.user_id);
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      // Send confirmation email to the user's real email
+      await sendOrderConfirmationEmail(user.email, order.id);
   
       res.status(200).json({ message: 'Order marked as Paid successfully', order });
     } catch (error) {
@@ -86,4 +79,5 @@ exports.updateOrderStatus = async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   };
+  
   

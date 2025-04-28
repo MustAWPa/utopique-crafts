@@ -9,10 +9,13 @@ const Order = sequelize.define('Order', {
     primaryKey: true,
     autoIncrement: true,
   },
-  products: {
-    type: DataTypes.JSON,
+  user_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    // Example: [{ product_id: 1, quantity: 2 }, { product_id: 3, quantity: 1 }]
+  },
+  products: {
+    type: DataTypes.JSONB,
+    allowNull: false,
   },
   total_price: {
     type: DataTypes.FLOAT,
@@ -21,10 +24,10 @@ const Order = sequelize.define('Order', {
   status: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'Pending', // Orders start as Pending
+    defaultValue: 'Pending',
   },
 }, {
-  timestamps: true, // Sequelize automatically adds createdAt and updatedAt
+  timestamps: true,
 });
 
-module.exports = Order;
+module.exports = Order;  // ✅ ✅ ✅ Must export!
