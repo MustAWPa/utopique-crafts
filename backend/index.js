@@ -7,12 +7,14 @@ require('dotenv').config();
 require('./models/Product');
 require('./models/Cart');
 require('./models/Order');
+require('./models/User');
 
 const cartRoutes = require('./routes/cartRoutes'); 
 const orderRoutes = require('./routes/orderRoutes');
 
 
 const productRoutes = require('./routes/productRoutes'); 
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -24,6 +26,8 @@ app.use(helmet());
 app.use('/products', productRoutes); 
 app.use('/cart', cartRoutes); 
 app.use('/orders', orderRoutes);
+app.use('/auth', authRoutes);
+
 
 
 // Test route
