@@ -6,7 +6,10 @@ const sequelize = require('./config/database');
 require('dotenv').config();
 require('./models/Product');
 require('./models/Cart');
+require('./models/Order');
+
 const cartRoutes = require('./routes/cartRoutes'); 
+const orderRoutes = require('./routes/orderRoutes');
 
 
 const productRoutes = require('./routes/productRoutes'); 
@@ -20,6 +23,7 @@ app.use(helmet());
 // Use product routes
 app.use('/products', productRoutes); 
 app.use('/cart', cartRoutes); 
+app.use('/orders', orderRoutes);
 
 
 // Test route
