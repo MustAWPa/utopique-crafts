@@ -4,12 +4,18 @@ const cors = require('cors');
 const helmet = require('helmet');
 const sequelize = require('./config/database');
 require('dotenv').config();
+require('./models/Product');
+
+const productRoutes = require('./routes/productRoutes'); // 👈 ADD THIS
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
+
+// Use product routes
+app.use('/products', productRoutes); // 👈 ADD THIS
 
 // Test route
 app.get('/', (req, res) => {
@@ -20,7 +26,7 @@ app.get('/', (req, res) => {
 sequelize.authenticate()
   .then(() => {
     console.log('✅ Database connected successfully.');
-    return sequelize.sync({ alter: true }); // Auto-create tables (for now)
+    return sequelize.sync({ alter: true });
   })
   .then(() => {
     app.listen(process.env.PORT, () => {
