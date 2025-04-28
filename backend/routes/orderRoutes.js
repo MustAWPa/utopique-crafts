@@ -11,4 +11,9 @@ router.post('/',  authenticateToken, orderController.placeOrder);
 // Get all orders
 router.get('/',  authenticateToken, orderController.getOrders);
 
+
+router.put('/:id/pay', authenticateToken, orderController.updateOrderStatus);
+
 module.exports = router;
+
+

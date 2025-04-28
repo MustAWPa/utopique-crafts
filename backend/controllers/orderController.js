@@ -62,3 +62,28 @@ exports.getOrders = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+// Update Order Status to Paid
+exports.updateOrderStatus = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      // Find the order by ID
+      const order = await Order.findByPk(id);
+  
+      if (!order) {
+        return res.status(404).json({ error: 'Order not found' });
+      }
+  
+      // Update order status
+      order.status = 'Paid';
+      await order.save();
+  
+      res.status(200).json({ message: 'Order marked as Paid successfully', order });
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
