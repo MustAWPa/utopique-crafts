@@ -1,42 +1,43 @@
-// backend/controllers/productController.js
-
-
-
-// Create a new product
 const Product = require('../models/Product');
 
+// Create a new product
 exports.createProduct = async (req, res) => {
   try {
+    console.log('======== DEBUGGING UPLOAD ========');
+    console.log('req.file:', req.file);
+    console.log('req.body:', req.body);
+
     const { title, description, price, category, stock } = req.body;
+    const image = req.file ? req.file.location : null;
 
-    // ✅ Parse price and stock into correct types
-    const parsedPrice = parseFloat(price);
-    const parsedStock = parseInt(stock);
-
-    // ✅ Handle uploaded image
-    let imageUrl = null;
-    if (req.file) {
-      imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    if (!image) {
+      console.log('No image uploaded');
+      return res.status(400).json({ message: 'Image upload failed', fileDebug: req.file });
     }
 
-    // ✅ Create product
-    const product = await Product.create({
+    console.log('Creating new product...');
+    const product = new Product({
       title,
       description,
-      price: parsedPrice,
+      price,
       category,
-      stock: parsedStock,
-      image_url: imageUrl,  // ✅ Save image_url here
+      stock,
+      image_url: image,  // ✅ Note: image_url now
     });
 
-    res.status(201).json(product);
+    console.log('Saving product to database...');
+    const createdProduct = await product.save();
+    console.log('Product saved!', createdProduct);
+
+    res.status(201).json(createdProduct);
   } catch (error) {
-    console.error('Error creating product:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error while creating product:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-// Get all products
+
+// ❗ ADD THIS MISSING FUNCTION
 exports.getProducts = async (req, res) => {
   try {
     const products = await Product.findAll();
@@ -47,7 +48,7 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// Get a single product by ID
+// Get single product by ID
 exports.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
