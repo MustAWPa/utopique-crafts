@@ -22,7 +22,7 @@ const Product = sequelize.define('Product', {
   },
   image_url: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   category: {
     type: DataTypes.STRING,

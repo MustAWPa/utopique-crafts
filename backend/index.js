@@ -20,6 +20,16 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 
 app.use(express.json());
+const multer = require('multer');
+const path = require('path');
+
+
+
+
+// Serve uploads folder as static
+app.use('/uploads', express.static('uploads'));
+
+
 app.use(cors());
 app.use(helmet());
 
@@ -52,3 +62,5 @@ sequelize.authenticate()
   .catch((err) => {
     console.error('❌ Unable to connect to the database:', err);
   });
+
+

@@ -1,12 +1,34 @@
 // backend/controllers/productController.js
 
-const Product = require('../models/Product');
+
 
 // Create a new product
+const Product = require('../models/Product');
+
 exports.createProduct = async (req, res) => {
   try {
-    const { title, description, price, image_url, category, stock } = req.body;
-    const product = await Product.create({ title, description, price, image_url, category, stock });
+    const { title, description, price, category, stock } = req.body;
+
+    // ✅ Parse price and stock into correct types
+    const parsedPrice = parseFloat(price);
+    const parsedStock = parseInt(stock);
+
+    // ✅ Handle uploaded image
+    let imageUrl = null;
+    if (req.file) {
+      imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    }
+
+    // ✅ Create product
+    const product = await Product.create({
+      title,
+      description,
+      price: parsedPrice,
+      category,
+      stock: parsedStock,
+      image_url: imageUrl,  // ✅ Save image_url here
+    });
+
     res.status(201).json(product);
   } catch (error) {
     console.error('Error creating product:', error);
